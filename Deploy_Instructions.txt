@@ -112,7 +112,7 @@ sudo apt install -y git
 
 ```bash
 cd ~
-git clone https://github.com/jaltantra/Jaltantra_Branch_v2.git
+git clone https://github.com/jaltantra/Jaltantra_Branch_Current_Deploy_2025
 cd Jaltantra_Branch_v2
 ```
 
@@ -260,157 +260,7 @@ curl -I http://localhost:8080/jaltantra/
 ```
 http://localhost:8080/jaltantra/
 ```
-
-**Network access:**
-```bash
-# Get your IP
-hostname -I
-
-# Access from other computers
-http://YOUR_IP:8080/jaltantra/
-```
 ---
-
-## 2: Troubleshooting
-
-### Issue 1: tomcat9.tar.gz Not Found
-
-**Error:**
-```
-ERROR: jaltantra_dependencies/tomcat9.tar.gz not found!
-```
-
-**Solution:**
-```bash
-# Check if dependencies folder exists
-ls -la jaltantra_dependencies/
-
-# Re-extract if missing
-tar -xzf ~/jaltantra_dependencies.tar.gz
-
-# Verify
-ls -lh jaltantra_dependencies/
-```
-
----
-
-### Issue 2: Tomcat Extracted to Wrong Path
-
-**Symptom:** `/opt/tomcat9/` is empty or doesn't exist
-
-**Solution:**
-```bash
-# Check where it extracted
-ls -la /opt/
-ls -la /tomcat9/  # Might be here
-
-# If in wrong location, move it
-sudo mv /tomcat9 /opt/tomcat9
-
-# Or re-run script
-sudo rm -rf /opt/tomcat9 /tomcat9
-sudo ./initialize_local.sh
-```
-
----
-
-### Issue 3: OR-Tools Library Not Found
-
-**Error:**
-```
-java.lang.UnsatisfiedLinkError: no jniortools in java.library.path
-```
-
-**Solution:**
-```bash
-# Verify OR-Tools installed
-ls -la /usr/local/lib/ortools-linux-x86-64/
-
-# Verify setenv.sh exists
-cat /opt/tomcat9/bin/setenv.sh
-
-# If missing, recreate
-sudo bash -c 'echo "export CATALINA_OPTS=\"\$CATALINA_OPTS -Djava.library.path=/usr/local/lib/ortools-linux-x86-64\"" > /opt/tomcat9/bin/setenv.sh'
-sudo chmod +x /opt/tomcat9/bin/setenv.sh
-
-# Restart Tomcat
-sudo /opt/tomcat9/bin/shutdown.sh
-sudo ./compile_and_deploy.sh
-```
-
----
-
-### Issue 4: GLIBCXX Version Mismatch
-
-**Error:**
-```
-version 'GLIBCXX_3.4.32' not found
-```
-
-**Cause:** Using OR-Tools compiled for Ubuntu 24.04 on Ubuntu 22.04
-
-**Solution:**
-```bash
-# Check your Ubuntu version
-lsb_release -a
-
-# Check available GLIBCXX
-strings /usr/lib/x86_64-linux-gnu/libstdc++.so.6 | grep GLIBCXX | tail -5
-
-# For Ubuntu 22.04, must use Ubuntu 22.04 compatible OR-Tools
-# Verify bundled OR-Tools is correct version
-tar -tzf jaltantra_dependencies/ortools-complete.tar.gz | head -5
-```
-
-**Prevention:** Always bundle OR-Tools from a working system with same Ubuntu version
-
----
-
-### Issue 5: MySQL Connection Failed
-
-**Error:**
-```
-Access denied for user 'jaltantra_branch'@'localhost'
-```
-
-**Solution:**
-```bash
-# Reset database
-sudo mysql -u root << EOF
-DROP DATABASE IF EXISTS jaltantra_db;
-DROP USER IF EXISTS 'jaltantra_branch'@'localhost';
-quit;
-EOF
-
-# Re-run database setup
-sudo mysql -u root < db.sql
-
-# Test connection
-mysql -u jaltantra_branch -p'jaltantra_branch' -e "SHOW DATABASES;"
-```
-
----
-
-### Issue 6: Port 8080 Already in Use
-
-**Error:**
-```
-Address already in use
-```
-
-**Solution:**
-```bash
-# Find what's using port 8080
-sudo lsof -i :8080
-
-# Kill the process
-sudo kill -9 <PID>
-
-# Or change Tomcat port
-sudo nano /opt/tomcat9/conf/server.xml
-# Change: <Connector port="8080" to port="8090"
-```
-
 ---
 
 ## Technical Details
@@ -517,9 +367,8 @@ These paths are **hardcoded** in multiple files and **cannot be changed** withou
 
 When new versions are needed:
 
-1. **Test on production system first**
-2. **Verify optimization works correctly**
-3. **Extract new archives:**
+1. **Verify optimization works correctly**
+2. **Extract new archives:**
    ```bash
    cd /opt
    sudo tar -czf ~/tomcat9-NEW.tar.gz tomcat9/
@@ -533,8 +382,7 @@ When new versions are needed:
 
 ### Version Tracking
 
-Document versions in `jaltantra_dependencies/README.md`:
-```markdown
+```
 # JalTantra Dependencies
 
 ## Current Versions
@@ -571,13 +419,13 @@ If optimization fails, check `/opt/tomcat9/logs/catalina.out` for errors.
 
 ## Support Resources
 
-**Repository:** https://github.com/jaltantra/JaltantraT_Branch_Current_Deploy_2025  
+**Repository:** https://github.com/jaltantra/Jaltantra_Branch_Current_Deploy_2025  
 **IIT Bombay JalTantra:** https://www.cse.iitb.ac.in/jaltantra/  
 **OR-Tools Documentation:** https://developers.google.com/optimization  
 **Tomcat Documentation:** https://tomcat.apache.org/tomcat-9.0-doc/  
 
 ---
 
-**Document Version:** 2.3/2025-11 - Local Dependencies  
+**Document Version:** 2.3/2025-11  
 **Last Updated:** November 17, 2025  
 **Created/Maintained By:** Sakina
